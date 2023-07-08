@@ -1,0 +1,41 @@
+---
+- name: "Download image and un podman container"
+  hosts: vms
+  remote_user: contenedor
+  vars_files:
+    - vars/acr_vars.yaml
+  tasks:
+    - debug:
+        msg: 
+          - " HOME is {{ansible_env.HOME}}"
+
+    - name: "Check dependency podman"
+      become: true 
+      ansible.builtin.apt: 
+        name: podman
+        update_cache: yes
+        
+
+    - name: "Podman Login in acr"
+      containers.podman.podman_login:
+        username: "{{usernameacr}}"
+        password: "{{passwacr}}"
+        registry: "{{acrserver}}"
+
+    - name: "Download image"
+      containers.podman.podman_image:
+        name: "{{acrserver}}/podman/servidorweb"
+        tag: casopractico2
+
+    - name: "Create a podman container with systemd service file generated in /tmp/"
+      containers.podman.podman_container:
+        name: "miservidorweb"
+        image: "{{acrserver}}/podman/servidorweb:casopractico2"
+        state: present
+        expose: 8080
+        generate_systemd:
+          path: /tmp/
+          restart_policy: always
+          time: 120
+          names: true
+          container_prefix: mariancc

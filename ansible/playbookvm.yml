@@ -2,6 +2,7 @@
 - name: "Download image and un podman container"
   hosts: vms
   remote_user: contenedor
+
   vars_files:
     - vars/acr_vars.yaml
   tasks:
@@ -13,6 +14,7 @@
       become: true 
       ansible.builtin.apt: 
         name: podman
+        state: present
         update_cache: yes
         
 
@@ -27,15 +29,26 @@
         name: "{{acrserver}}/podman/servidorweb"
         tag: casopractico2
 
-    - name: "Create a podman container with systemd service file generated in /tmp/"
+    - name: "Create a podman container"
+      become: true 
       containers.podman.podman_container:
-        name: "miservidorweb"
+        name: miservidorweb
         image: "{{acrserver}}/podman/servidorweb:casopractico2"
-        state: present
-        expose: 8080
-        generate_systemd:
-          path: /tmp/
-          restart_policy: always
-          time: 120
-          names: true
-          container_prefix: mariancc
+        state: created
+        ports: "8080:443"
+
+    - name: Generate systemd unit file for miservidorweb container
+      become: true 
+      containers.podman.podman_generate_systemd:
+        name: miservidorweb
+        new: true
+        no_header: true
+        dest: /etc/systemd/system     
+
+    - name: "Reload systemd"
+      become: true
+      ansible.builtin.systemd:
+        name: container-miservidorweb
+        daemon_reload: true
+        state: started
+        enabled: true

@@ -1,3 +1,3 @@
 #!/bin/bash
-ansible-playbook -i inventory playbookpodman.yml
-ansible-playbook -i inventory playbookvm.yml
+ansible-playbook -i hosts playbookpodman.yml
+ansible-playbook -i hosts playbookvm.yml

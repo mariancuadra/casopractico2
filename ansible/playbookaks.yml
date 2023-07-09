@@ -1,0 +1,35 @@
+---
+- name: "Create podman image and push it"
+  hosts: localhost
+  connection: local
+  vars_files:
+    - vars/acr_vars.yaml
+  tasks:
+    - debug:
+        msg: 
+          - " HOME is {{ansible_env.HOME}}"
+    - name: "Download image"
+      containers.podman.podman_image:
+        name: docker.io/jenkins/jenkins
+        tag: lts-jdk11
+
+    - name: "Tag an image with caso practico2"
+      containers.podman.podman_tag:
+        image: docker.io/jenkins/jenkins:lts-jdk11
+        target_names: 
+          aks/jenkins:casopractico2  #De esta manera tenemos una imagen, con el mismo id pero un nombre amigable con nuestro tag casopractico2
+    
+    - name: "Podman Login"
+      containers.podman.podman_login:
+        username: "{{usernameacr}}"
+        password: "{{passwacr}}"
+        registry: "{{acrserver}}"
+
+    - name: "Push Jenkins image"
+      containers.podman.podman_image:
+        name: jenkins
+        tag: casopractico2
+        push: true
+        push_args:
+          dest: "{{acrserver}}/aks"
+    

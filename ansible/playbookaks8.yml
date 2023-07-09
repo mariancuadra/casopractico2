@@ -1,0 +1,26 @@
+---
+- name: "Create podman image and push it"
+  hosts: localhost
+  connection: local
+  vars_files:
+    - vars/acr_vars.yaml
+    - vars/aks_vars.yaml
+
+  tasks:
+
+    - name: 'Definir los objectos deployment y servicios'
+      template:
+        src: templates/stateless.j2
+        dest: "{{ directorio_trabajo }}/{{ aplicacion.definicion }}"
+
+    - name: "Create namespace"
+      kubernetes.core.k8s:
+        name: "{{namespaceaks}}"
+        api_version: v1
+        kind: Namespace
+        state: present
+        
+    - name: 'Crear Deployments y servicios de la aplicación'
+      kubernetes.core.k8s:
+        state: present
+        template: "{{ directorio_trabajo }}/{{ aplicacion.definicion }}"

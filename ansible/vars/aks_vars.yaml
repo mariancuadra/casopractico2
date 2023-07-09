@@ -1,0 +1,17 @@
+namespaceaks: 'pr2jenkins'
+directorio_trabajo: "/tmp"
+volumen:
+  nombre: volumenjenkins
+  capacidad: 1Gi
+aplicacion:
+  definicion: "stateless.yaml"
+  nombre: jenkins
+  imagen: mariancc.azurecr.io/aks/jenkins:casopractico2
+  replicas: 1
+  recursos:
+    cpu: 100m
+    memoria: 128Mi
+  limites:
+    cpu: 250m
+    memoria: 256Mi
+  puerto: 8080

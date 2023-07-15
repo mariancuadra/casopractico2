@@ -18,13 +18,7 @@
         repo: https://github.com/mariancuadra/webserviceng.git
         dest: "{{ansible_env.HOME}}/servidorweb"
         version: main
-        
-    #- name: "Check dependency passlib"
-    #  become: true en ubuntu
-    #  ansible.builtin.apt: para ubuntu
-    #    name: python3-passlib
-    #    state: present
-      
+             
     - name: "Add profesor user to a password file"
       become: true
       htpasswd:

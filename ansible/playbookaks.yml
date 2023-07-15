@@ -1,5 +1,5 @@
 ---
-- name: "Create podman image and push it"
+- name: "Create jenkins image and push it"
   hosts: localhost
   connection: local
   vars_files:

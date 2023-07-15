@@ -1,15 +1,45 @@
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: "{{ volumen.nombre }}"
   namespace: "{{ namespaceaks }}"
 spec: 
-  storageClassName: azurefile-csi
+  storageClassName: managed-csi
   resources:
     requests:
       storage: "{{ volumen.capacidad }}"
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: "{{ serviceaccount.name }}"
+rules:
+  - apiGroups: [""]
+    resources: ["*"]
+    verbs: ["*"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "{{ serviceaccount.name }}"
+  namespace: "{{ namespaceaks }}"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: "{{ serviceaccount.name }}"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: "{{ serviceaccount.name }}"
+subjects:
+- kind: ServiceAccount
+  name: "{{ serviceaccount.name }}"
+  namespace: "{{ namespaceaks }}"
 
 ---
 apiVersion: apps/v1
@@ -29,6 +59,11 @@ spec:
     spec:
       nodeSelector:
         "kubernetes.io/os": linux
+      securityContext:
+            fsGroup: 1000
+            runAsUser: 1000
+            privileged: true
+      serviceAccountName: "{{ serviceaccount.name }}"
       containers:
       - name: "{{ aplicacion.nombre }}"
         image: "{{ aplicacion.imagen }}"
@@ -40,13 +75,16 @@ spec:
                 cpu: "{{ aplicacion.limites.cpu }}"
                 memory: "{{ aplicacion.limites.memoria }}"
         ports:
-        - containerPort: {{ aplicacion.puerto }}
-          name: jenkins
+          - name: http-jenkins
+            containerPort: {{ aplicacion.puerto }}
+          - name: jnlp-port
+            containerPort: 50000
+            
         volumeMounts:
-        - name: "{{volumen.nombre}}"
-          mountPath: "/var/jenkins_home"
+        - name: jenkins-vol
+          mountPath: /var/jenkins_home
       volumes:
-      - name: "{{volumen.nombre}}"
+      - name: jenkins-vol
         persistentVolumeClaim:
           claimName: "{{volumen.nombre}}"
 ---

@@ -1,8 +1,8 @@
 namespaceaks: 'pr2jenkins'
 directorio_trabajo: "/tmp"
 volumen:
-  nombre: volumenjenkins
-  capacidad: 1Gi
+  nombre: pvc-jenkins
+  capacidad: 3Gi
 aplicacion:
   definicion: "stateless.yaml"
   nombre: jenkins
@@ -15,3 +15,5 @@ aplicacion:
     cpu: 250m
     memoria: 256Mi
   puerto: 8080
+serviceaccount:
+  name: "jenkins-admin"

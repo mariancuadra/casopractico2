@@ -19,12 +19,14 @@
         
 
     - name: "Podman Login in acr"
+      become: true
       containers.podman.podman_login:
         username: "{{usernameacr}}"
         password: "{{passwacr}}"
         registry: "{{acrserver}}"
 
     - name: "Download image"
+      become: true
       containers.podman.podman_image:
         name: "{{acrserver}}/podman/servidorweb"
         tag: casopractico2

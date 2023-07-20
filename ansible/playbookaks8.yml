@@ -1,5 +1,5 @@
 ---
-- name: "Create podman image and push it"
+- name: "Connect to AKS and deploy jenkins"
   hosts: localhost
   connection: local
   vars_files:
@@ -7,6 +7,9 @@
     - vars/aks_vars.yaml
 
   tasks:
+
+    - name: 'Recuperar credenciales para la conexion al AKS con shell'
+      ansible.builtin.shell: az aks get-credentials --name {{aksname}} --resource-group {{resourcegroup}} --overwrite-existing
 
     - name: 'Definir los objectos deployment y servicios'
       template:

@@ -1,4 +1,6 @@
 namespaceaks: 'pr2jenkins'
+resourcegroup: 'rg-casopractico2'
+aksname: 'akscc'
 directorio_trabajo: "/tmp"
 volumen:
   nombre: pvc-jenkins
